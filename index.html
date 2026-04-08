@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#04010F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mettlestate × EA FC League</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+<!-- BACKGROUNDS -->
+<canvas id="starfield-canvas"></canvas>
+<div class="bg-ambient">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+</div>
+<div class="bg-grid"></div>
+<div class="grain"></div>
+<div class="scanlines"></div>
+
+<!-- TOP BAR -->
+<header class="top-bar">
+  <div class="top-bar-brand">
+    <img src="assets/logo.png" alt="Logo" class="top-logo" onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex'">
+    <div id="logo-fb" class="top-logo-fallback" style="display:none">M</div>
+    <div class="top-bar-titles">
+      <div class="top-bar-name">METTLESTATE <span class="accent">×</span> EA FC</div>
+      <div class="top-bar-sub" id="sast-clock">League Manager v4</div>
+    </div>
+  </div>
+  <div class="top-bar-right">
+    <div class="season-pill" onclick="switchTab('seasons')" title="Season selector">
+      <i class="fas fa-trophy"></i>
+      <span id="season-pill-label">S1</span>
+      <i class="fas fa-chevron-down"></i>
+    </div>
+    <div class="gh-status-pill">
+      <div id="gh-status-dot" class="status-dot status-local"></div>
+      <span id="gh-status-label">Local</span>
+    </div>
+  </div>
+</header>
+
+<!-- SYNC BAR -->
+<div id="sync-bar" class="sync-bar hidden" role="status" aria-live="polite">
+  <span id="sync-icon"><i class="fas fa-circle-notch fa-spin"></i></span>
+  <span id="sync-msg">Syncing…</span>
+</div>
+
+<main class="main-content">
+
+  <!-- ═══════════════ STANDINGS ═══════════════ -->
+  <section id="dashboard" class="tab-content active">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Standings</h2>
+        <p class="page-subtitle" id="standings-subtitle">Live rankings · Updated in real-time</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon-action" onclick="downloadLeaderboardImage()" title="Export standings image"><i class="fas fa-camera"></i></button>
+        <button class="btn-icon-action" onclick="exportData()" title="Backup data"><i class="fas fa-download"></i></button>
+      </div>
+    </div>
+    <div id="live-bar" class="live-bar" style="display:none">
+      <div class="live-dot"></div>
+      <span class="live-text" id="live-bar-text">SEASON IN PROGRESS</span>
+    </div>
+    <div class="stats-ticker" id="stats-ticker">
+      <div class="ticker-item t-accent"><div class="ticker-label">Players</div><div class="ticker-val" id="stat-players">0</div><div class="ticker-sub">registered</div></div>
+      <div class="ticker-item t-accent2"><div class="ticker-label">Matches</div><div class="ticker-val" id="stat-matches">0</div><div class="ticker-sub">played</div></div>
+      <div class="ticker-item t-purple"><div class="ticker-label">Goals</div><div class="ticker-val" id="stat-goals">0</div><div class="ticker-sub">total</div></div>
+      <div class="ticker-item t-danger"><div class="ticker-label">Pending</div><div class="ticker-val" id="stat-pending">0</div><div class="ticker-sub">fixtures</div></div>
+    </div>
+    <div id="podium-area" class="podium-area" style="display:none"></div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table id="leaderboardTable" class="league-table">
+          <thead><tr>
+            <th class="th-pos">#</th>
+            <th class="th-player">PLAYER</th>
+            <th title="Played">P</th><th title="Wins">W</th><th title="Draws">D</th><th title="Losses">L</th>
+            <th title="Goals For" class="hide-xs">GF</th><th title="Goals Against" class="hide-xs">GA</th>
+            <th title="Goal Difference">GD</th>
+            <th title="Points" class="th-pts">PTS</th>
+            <th title="Form" class="hide-sm">FORM</th>
+          </tr></thead>
+          <tbody id="leaderboardBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FIXTURES ═══════════════ -->
+  <section id="fixtures" class="tab-content">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Fixtures</h2>
+        <p class="page-subtitle">Pending matches · Awaiting results</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon-action" onclick="downloadFixtureImage()" title="Export fixtures image"><i class="fas fa-camera"></i></button>
+      </div>
+    </div>
+    <div id="fixtures-grid" class="cards-grid"></div>
+  </section>
+
+  <!-- ═══════════════ RESULTS ═══════════════ -->
+  <section id="results" class="tab-content">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Results</h2>
+        <p class="page-subtitle">Completed matches · Full history</p>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" class="search-input" id="results-search" placeholder="Filter by player name…" oninput="filterResults(this.value)">
+    </div>
+    <div id="results-list" class="results-list"></div>
+  </section>
+
+  <!-- ═══════════════ PLAYERS ═══════════════ -->
+  <section id="players" class="tab-content">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Players</h2>
+        <p class="page-subtitle"><span id="player-count">0</span> registered participants</p>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" class="search-input" id="player-search" placeholder="Search players…" oninput="filterPlayers(this.value)">
+    </div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table id="playerMgmtTable" class="league-table">
+          <thead><tr>
+            <th>#</th><th class="th-player">PLAYER</th>
+            <th class="hide-sm">USERNAME</th><th class="hide-sm">POSTPONE</th>
+            <th class="hide-xs">RECORD</th><th>ACT</th>
+          </tr></thead>
+          <tbody id="playerMgmtBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CALENDAR ═══════════════ -->
+  <section id="calendar" class="tab-content">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Calendar</h2>
+        <p class="page-subtitle">South African holidays · GMT+2 / SAST</p>
+      </div>
+      <div class="header-actions">
+        <span class="calendar-tz-badge">GMT+2</span>
+      </div>
+    </div>
+    <div class="calendar-wrap">
+      <div class="calendar-header-row">
+        <button class="calendar-nav-btn" onclick="Calendar.navigate(-1)"><i class="fas fa-chevron-left"></i></button>
+        <div>
+          <div class="calendar-month-title" id="cal-month-title">April 2026</div>
+        </div>
+        <button class="calendar-nav-btn" onclick="Calendar.navigate(1)"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <button class="btn-outline" style="font-size:0.7rem;padding:6px 14px;margin-bottom:12px" onclick="Calendar.goToday()"><i class="fas fa-crosshairs"></i> Today</button>
+      <div class="calendar-grid-header">
+        <div class="calendar-day-header">SUN</div><div class="calendar-day-header">MON</div><div class="calendar-day-header">TUE</div>
+        <div class="calendar-day-header">WED</div><div class="calendar-day-header">THU</div><div class="calendar-day-header">FRI</div>
+        <div class="calendar-day-header">SAT</div>
+      </div>
+      <div class="calendar-grid" id="cal-grid"></div>
+    </div>
+    <div style="margin-top:20px">
+      <div class="page-header" style="margin-bottom:12px">
+        <div class="page-header-text">
+          <h2 style="font-size:1.2rem">Upcoming SA Holidays</h2>
+          <p class="page-subtitle">Fixtures auto-skip on statutory holidays when configured</p>
+        </div>
+      </div>
+      <div class="holiday-list" id="holiday-list"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SEASONS ═══════════════ -->
+  <section id="seasons" class="tab-content">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Seasons</h2>
+        <p class="page-subtitle">Season management · Archive & History</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon-action" onclick="renderSeasonsTab()" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+      </div>
+    </div>
+
+    <div class="new-season-card">
+      <div class="new-season-icon">🏆</div>
+      <div class="new-season-title">Start a New Season</div>
+      <div class="new-season-desc">Archive the current season to GitHub, reset all player stats and fixtures.<br>Player roster is carried over with 20 fresh postponements each.</div>
+      <button class="btn-primary" style="margin-top:16px;max-width:260px;margin-left:auto;margin-right:auto" onclick="startNewSeason()"><i class="fas fa-plus-circle"></i> Start New Season</button>
+    </div>
+
+    <div class="page-header" style="margin-top:20px;margin-bottom:12px">
+      <div class="page-header-text"><h2 style="font-size:1.2rem">All Seasons</h2></div>
+    </div>
+    <div class="seasons-grid" id="seasons-grid">
+      <div style="color:var(--muted);padding:20px;text-align:center"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ RULES ═══════════════ -->
+  <section id="rules" class="tab-content">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Rules</h2>
+        <p class="page-subtitle">Official regulations · <span id="rules-season-label">Season 1</span></p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon-action" onclick="downloadRulesImage()" title="Export rules"><i class="fas fa-camera"></i></button>
+      </div>
+    </div>
+    <div class="rules-page" id="rules-content">
+      <div class="rules-brand-header">
+        <div class="rules-brand-left">
+          <img src="assets/logo.png" alt="" class="rules-brand-logo" onerror="this.style.display='none'">
+          <div>
+            <div class="rules-brand-name">METTLESTATE <span>× EA FC MOBILE</span></div>
+            <div class="rules-brand-url"><i class="fas fa-globe"></i> mettlestate.com</div>
+          </div>
+        </div>
+        <div class="rules-season-badge" id="rules-season-badge">SEASON 1</div>
+      </div>
+      <div class="rules-points-banner">
+        <div class="rules-points-item win"><span class="rules-points-num">3</span><span class="rules-points-label">Win</span></div>
+        <div class="rules-points-divider"></div>
+        <div class="rules-points-item draw"><span class="rules-points-num">1</span><span class="rules-points-label">Draw</span></div>
+        <div class="rules-points-divider"></div>
+        <div class="rules-points-item loss"><span class="rules-points-num">0</span><span class="rules-points-label">Loss</span></div>
+        <div class="rules-points-divider"></div>
+        <div class="rules-points-item info"><span class="rules-points-num" style="font-size:1.1rem">GD</span><span class="rules-points-label">Tiebreak</span></div>
+      </div>
+      <div class="rules-grid">
+        <div class="rules-section">
+          <h3><i class="fas fa-calendar-alt"></i> Fixtures &amp; Scheduling</h3>
+          <ul>
+            <li>Fixtures are sent between <strong>00:00–10:00 SAST (GMT+2)</strong>, Monday to Saturday, excluding public holidays.</li>
+            <li>Deadline for results is <strong class="clr-red">23:59 same day. NO LATE SUBMISSIONS ACCEPTED.</strong></li>
+            <li>You <strong>cannot</strong> send a first message to your opponent after <strong>19:00</strong>.</li>
+            <li>Fixtures display the first <strong>4 letters</strong> of each opponent's WhatsApp username.</li>
+          </ul>
+        </div>
+        <div class="rules-section">
+          <h3><i class="fas fa-camera"></i> Result Submission</h3>
+          <ul>
+            <li>Submit a <strong>screenshot of your result</strong> within a <strong class="clr-yellow">15-minute grace period</strong> after the match.</li>
+            <li>If contact was attempted, submit <strong>screenshot evidence</strong> within a <strong class="clr-yellow">6-hour grace period</strong> — only after 19:00.</li>
+            <li>If nothing is submitted when grace period ends, the game is a <strong class="clr-yellow">draw</strong>.</li>
+            <li>Tag <strong>both admins</strong> in the Mettlestate group when submitting results or evidence.</li>
+            <li><strong class="clr-red">All league messages must go on the Mettlestate group.</strong> No direct messaging.</li>
+          </ul>
+        </div>
+        <div class="rules-section">
+          <h3><i class="fas fa-user-slash"></i> No-Shows &amp; Forfeits</h3>
+          <ul>
+            <li>If opponent doesn't arrive at agreed time — <strong class="clr-red">automatic forfeit</strong> after <strong>10-minute grace</strong>.</li>
+            <li>If your opponent sets a time and is <strong>30 minutes late</strong>, you are awarded the win.</li>
+            <li>Failure to follow this results in a <strong>forfeit or draw</strong> at admin discretion.</li>
+          </ul>
+        </div>
+        <div class="rules-section rules-section--warn">
+          <h3><i class="fas fa-clock"></i> Postponements — 20 Per Season</h3>
+          <ul>
+            <li>Each player receives <strong class="clr-yellow">20 postponements per season</strong> total. This includes games postponed by opponents against you.</li>
+            <li>Once you reach <strong class="clr-red">0 postponements</strong>, any further postponement attempt results in an <strong class="clr-red">AUTO-FORFEIT</strong> — your opponent is awarded 3-0 automatically, no exceptions.</li>
+            <li>Use postponements wisely — there are no refunds or bonus allocations during the season.</li>
+            <li>Exceptions for genuine emergencies (broken phone, family bereavement, hospitalisation) are at <strong>admin discretion only</strong> — submit evidence in the group chat.</li>
+            <li>Postponement requests must be made via the Mettlestate group tagging admins <strong>before</strong> the fixture deadline.</li>
+          </ul>
+        </div>
+        <div class="rules-section">
+          <h3><i class="fas fa-wifi"></i> Disconnections</h3>
+          <ul>
+            <li>Immediately report to admin and opponent. Arrange a rematch.</li>
+            <li>If network is the cause, provide <strong>3–5 screenshots</strong> at the 10-minute in-game mark, or a video if possible.</li>
+            <li>If a goal was scored before the lag, the match replays with a <strong>handicap scoreline</strong>.</li>
+            <li><strong class="clr-red">No evidence = straight forfeit. No excuses.</strong></li>
+          </ul>
+        </div>
+        <div class="rules-section rules-section--danger">
+          <h3><i class="fas fa-ban"></i> Strictly Prohibited</h3>
+          <ul>
+            <li><strong class="clr-red">KickOff Glitch</strong> — forbidden. Caught with proof = forfeit.</li>
+            <li><strong class="clr-red">Cross Spamming</strong> — max <strong>5 attempts per match</strong>. Exceeded with proof = forfeit.</li>
+            <li><strong class="clr-red">Lob Ball Spamming</strong> — max <strong>5 attempts per match</strong>. Exceeded with proof = forfeit.</li>
+            <li><strong class="clr-red">Passive Playing / Time-Wasting</strong> — wasting <strong>10 minutes game-time</strong> with possession = loss. Requires 3 screenshots or short video.</li>
+            <li>Breaching Mettlestate community rules = <strong class="clr-red">removal by admins</strong>.</li>
+          </ul>
+        </div>
+        <div class="rules-section">
+          <h3><i class="fas fa-gavel"></i> Disputes &amp; Admin</h3>
+          <ul>
+            <li>All disputes handled by <strong>organisers, helpers, and admin</strong>. Raise it in the group.</li>
+            <li>Admin decisions are <strong>final</strong>.</li>
+            <li>Rules may be updated between seasons at organiser discretion.</li>
+            <li>Visit <a href="https://mettlestate.com" target="_blank" class="rules-link">mettlestate.com</a> for community and general rules.</li>
+          </ul>
+        </div>
+        <div class="rules-section rules-section--highlight">
+          <h3><i class="fas fa-handshake"></i> Astral Friendly League — Addendum</h3>
+          <p class="rules-note">Additional rules for the <strong>Mettlestate × Astral Friendly League</strong>:</p>
+          <ul>
+            <li>You have <strong>23 hours (00:00–23:00)</strong> to play. Unplayed games = <strong class="clr-yellow">draw</strong>.</li>
+            <li>Proof of contact must be submitted before <strong>23:00</strong> and show contact made before <strong>20:00</strong> to be awarded no-show win.</li>
+            <li><strong class="clr-red">LATE RESULTS OR REPORTS ARE NOT ACCEPTED.</strong></li>
+            <li>All standard conduct rules apply here too.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="rules-footer">Powered by <a href="https://mettlestate.com" target="_blank">mettlestate.com</a> &nbsp;·&nbsp; #MettlestateLeague</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ADMIN ═══════════════ -->
+  <section id="admin" class="tab-content">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Admin</h2>
+        <p class="page-subtitle">League management · Restricted access</p>
+      </div>
+    </div>
+    <div class="admin-accordion">
+
+      <!-- Log Score -->
+      <div class="acc-item acc-open">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap"><i class="fas fa-edit"></i></span>
+          <span class="acc-label">Log Score</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Record the result with optional screenshot evidence.</p>
+          <select id="scoreFixtureSelect" class="field styled-select"></select>
+          <div class="score-inputs">
+            <input type="number" id="scoreHome" min="0" placeholder="0" class="score-num">
+            <span class="score-dash">—</span>
+            <input type="number" id="scoreAway" min="0" placeholder="0" class="score-num">
+          </div>
+          <input type="file" id="matchImageInput" accept="image/*" class="file-input">
+          <label for="matchImageInput" class="btn-file-label" id="matchImageLabel"><i class="fas fa-image"></i> Attach Screenshot (optional)</label>
+          <div id="match-image-preview-wrap" style="display:none;margin-bottom:10px">
+            <img id="match-image-preview" src="" alt="preview" style="width:100%;border-radius:8px;border:1px solid var(--border-2);max-height:150px;object-fit:cover">
+            <button onclick="clearMatchImage()" style="background:var(--danger-soft);color:var(--danger);border:1px solid rgba(255,45,85,0.25);padding:9px;font-size:0.78rem;width:100%;margin-top:5px;border-radius:7px;cursor:pointer"><i class="fas fa-times"></i> Remove Image</button>
+          </div>
+          <button class="btn-primary full-w" onclick="logScore()"><i class="fas fa-check"></i> Log Result</button>
+        </div>
+      </div>
+
+      <!-- Generate Fixtures -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap"><i class="fas fa-shuffle"></i></span>
+          <span class="acc-label">Generate Fixtures</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Create random matchday pairings from registered players.</p>
+          <select id="matchday-select" class="field styled-select">
+            <option value="random">Random Pairs</option>
+            <option value="roundrobin">Round Robin (All vs All)</option>
+          </select>
+          <div class="acc-btn-row">
+            <button class="btn-primary" onclick="generateDraw()"><i class="fas fa-shuffle"></i> Generate Draw</button>
+            <button class="btn-danger" onclick="clearData()"><i class="fas fa-trash"></i> Reset League</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Automation -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap" style="background:rgba(0,229,255,0.1);border-color:rgba(0,229,255,0.3);color:var(--accent2)"><i class="fas fa-robot"></i></span>
+          <span class="acc-label">Auto-Scheduler (SAST)</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Configure automatic fixture generation and auto-draws at specified SAST times. System checks every minute.</p>
+          <div class="auto-config-grid">
+            <div class="auto-config-item">
+              <label>
+                <label class="toggle-switch"><input type="checkbox" id="auto-fixture-enabled" onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
+                <span class="auto-config-title">Auto-Generate Fixtures</span>
+              </label>
+              <div class="auto-config-desc">Automatically generate Round Robin / Random fixtures at a set time each day.</div>
+              <div class="time-input-row">
+                <label style="font-size:0.72rem;color:var(--muted-2);font-family:'JetBrains Mono',monospace">Time (SAST):</label>
+                <input type="time" id="auto-fixture-time" class="time-input" value="02:00" onchange="Automation.saveConfigUI()">
+              </div>
+              <select id="auto-fixture-mode" class="field styled-select" onchange="Automation.saveConfigUI()">
+                <option value="roundrobin">Round Robin</option>
+                <option value="random">Random Pairs</option>
+              </select>
+              <div class="auto-countdown" id="auto-fixture-countdown">Disabled</div>
+            </div>
+            <div class="auto-config-item">
+              <label>
+                <label class="toggle-switch"><input type="checkbox" id="auto-draw-enabled" onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
+                <span class="auto-config-title">Auto-Draw Pending Matches</span>
+              </label>
+              <div class="auto-config-desc">At set time, resolve all non-postponed, non-ignored fixtures as 0-0 draws automatically.</div>
+              <div class="time-input-row">
+                <label style="font-size:0.72rem;color:var(--muted-2);font-family:'JetBrains Mono',monospace">Time (SAST):</label>
+                <input type="time" id="auto-draw-time" class="time-input" value="02:00" onchange="Automation.saveConfigUI()">
+              </div>
+              <div class="auto-countdown" id="auto-draw-countdown">Disabled</div>
+            </div>
+            <div class="auto-config-item">
+              <label style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+                <label class="toggle-switch"><input type="checkbox" id="auto-skip-holidays" checked onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
+                <span class="auto-config-title" style="font-size:0.82rem">Skip SA Public Holidays</span>
+              </label>
+              <label style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+                <label class="toggle-switch"><input type="checkbox" id="auto-skip-weekends" onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
+                <span class="auto-config-title" style="font-size:0.82rem">Skip Weekends</span>
+              </label>
+              <label style="display:flex;gap:10px;align-items:center">
+                <label class="toggle-switch"><input type="checkbox" id="auto-notify-discord" checked onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
+                <span class="auto-config-title" style="font-size:0.82rem">Notify Discord on Auto-Events</span>
+              </label>
+            </div>
+          </div>
+          <div class="acc-btn-row" style="margin-top:12px">
+            <button class="btn-secondary" onclick="Automation.manualFixture()"><i class="fas fa-play"></i> Run Fixture Now</button>
+            <button class="btn-secondary" onclick="Automation.manualDraw()"><i class="fas fa-random"></i> Run Draw Now</button>
+          </div>
+          <div style="margin-top:12px"><div style="font-size:0.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;margin-bottom:6px">AUTOMATION LOG</div>
+            <div class="auto-log" id="auto-log-content"><div class="auto-log-entry"><span class="auto-log-msg" style="color:var(--muted)">No events yet.</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual Match -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap"><i class="fas fa-plus-circle"></i></span>
+          <span class="acc-label">Manual Match</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Manually schedule a specific fixture between two players.</p>
+          <input type="text" id="p1Input" placeholder="Player 1 Username" list="player-list-p1" class="field">
+          <datalist id="player-list-p1"></datalist>
+          <input type="text" id="p2Input" placeholder="Player 2 Username" list="player-list-p2" class="field">
+          <datalist id="player-list-p2"></datalist>
+          <button class="btn-secondary full-w" onclick="addManualMatch()"><i class="fas fa-plus"></i> Add Fixture</button>
+        </div>
+      </div>
+
+      <!-- Add Player -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap"><i class="fas fa-user-plus"></i></span>
+          <span class="acc-label">Add Player</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Manually add a participant to the league.</p>
+          <input type="text" id="addName" placeholder="Full Name" class="field">
+          <input type="text" id="addUsername" placeholder="In-Game Username" class="field">
+          <input type="text" id="addPhone" placeholder="Phone / WhatsApp Contact" class="field">
+          <button class="btn-secondary full-w" onclick="addSinglePlayer()"><i class="fas fa-user-plus"></i> Add Player</button>
+        </div>
+      </div>
+
+      <!-- Import Players -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap"><i class="fas fa-file-import"></i></span>
+          <span class="acc-label">Import Players</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Upload a <code>.txt</code> file. Format per line: <code>Name, Username, Phone</code></p>
+          <input type="file" id="playerImport" accept=".txt" class="file-input">
+          <label for="playerImport" class="btn-file-label"><i class="fas fa-folder-open"></i> Choose File</label>
+          <span id="file-chosen" style="display:block;font-size:0.75rem;color:var(--muted);margin:4px 0 10px">No file chosen</span>
+          <button class="btn-primary full-w" onclick="processImport()"><i class="fas fa-file-import"></i> Import Players</button>
+        </div>
+      </div>
+
+      <!-- GitHub Sync -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#fff"><i class="fab fa-github"></i></span>
+          <span class="acc-label">GitHub Sync</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Connect to your repo so all data and match images are committed automatically.</p>
+          <input type="text"     id="ghOwner"  placeholder="Username / Org" class="field">
+          <input type="text"     id="ghRepo"   placeholder="Repository name" class="field">
+          <input type="text"     id="ghBranch" placeholder="Branch (default: main)" value="main" class="field">
+          <input type="password" id="ghToken"  placeholder="Personal Access Token (repo scope)" class="field">
+          <div class="gh-token-hint"><i class="fas fa-lock"></i> Token stored locally — never sent anywhere except GitHub's API.</div>
+          <div class="acc-btn-row">
+            <button class="btn-primary" onclick="saveGitHubConfig()"><i class="fab fa-github"></i> Save &amp; Connect</button>
+            <button class="btn-danger"  onclick="disconnectGitHub()">Disconnect</button>
+          </div>
+          <button class="btn-outline full-w" id="btn-force-sync" onclick="forceSyncToGitHub()" style="display:none;margin-top:8px"><i class="fas fa-upload"></i> Force Sync Now</button>
+          <div id="gh-connect-status" class="gh-status-msg"></div>
+        </div>
+      </div>
+
+      <!-- Public Leaderboard -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap" style="background:var(--purple-soft);border-color:rgba(191,90,242,0.35);color:var(--purple)"><i class="fas fa-globe"></i></span>
+          <span class="acc-label">Public Leaderboard</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Push live standings to your public-facing GitHub Pages repo so players can view without admin access.</p>
+          <input type="text"     id="pubOwner"  placeholder="Public Repo Owner" class="field">
+          <input type="text"     id="pubRepo"   placeholder="Public Repo Name" class="field">
+          <input type="text"     id="pubBranch" placeholder="Branch (default: main)" value="main" class="field">
+          <input type="password" id="pubToken"  placeholder="PAT Token for public repo" class="field">
+          <div class="gh-token-hint"><i class="fas fa-lock"></i> Token stored locally only.</div>
+          <div class="acc-btn-row">
+            <button class="btn-primary"   onclick="savePublicRepoConfig()"><i class="fas fa-save"></i> Save Config</button>
+            <button class="btn-secondary" onclick="pushToPublicLeaderboard()"><i class="fas fa-upload"></i> Push Live</button>
+          </div>
+          <div id="pub-sync-status" class="gh-status-msg"></div>
+        </div>
+      </div>
+
+      <!-- Discord Webhook -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap" style="background:rgba(88,101,242,0.12);border-color:rgba(88,101,242,0.35);color:#7289DA"><i class="fab fa-discord discord-icon-anim"></i></span>
+          <span class="acc-label">Discord Webhook</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Connect a Discord webhook to receive rich notifications for results, postponements, auto-events, season changes, and more.</p>
+          <input type="url" id="discordWebhook" placeholder="https://discord.com/api/webhooks/…" class="field">
+          <div class="acc-btn-row">
+            <button class="btn-primary" onclick="saveDiscordWebhook()"><i class="fab fa-discord"></i> Save &amp; Test</button>
+          </div>
+          <div id="discord-status" class="gh-status-msg"></div>
+          <div style="font-size:0.72rem;color:var(--muted-2);margin-top:10px;line-height:1.6">
+            <strong style="color:var(--text-soft)">Events logged:</strong> Match results, postponements, auto-forfeits, forfeits, no-shows, fixture generation, auto-draws, season start, player joins/removes, suspensions, leaderboard pushes.
+          </div>
+        </div>
+      </div>
+
+      <!-- WhatsApp OCR -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap" style="background:rgba(37,211,102,0.1);border-color:rgba(37,211,102,0.35);color:#25D366"><i class="fab fa-whatsapp"></i></span>
+          <span class="acc-label">WhatsApp OCR</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Upload a WhatsApp chat screenshot to automatically detect postponements, forfeits, no-shows, and results via Gemini AI.</p>
+          <div style="background:rgba(0,229,255,0.05);border:1px solid var(--border-accent2);padding:12px;border-radius:var(--r-sm);margin-bottom:12px">
+            <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;margin-bottom:5px">🔑 Google Gemini API (FREE)</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px">Get a free key: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/app/apikey</a><br>Free tier: 1,500 requests/day · No credit card required</div>
+            <input type="password" id="geminiApiKey" placeholder="Paste your Gemini API key here" class="field" style="margin-bottom:8px">
+            <button class="btn-outline full-w" onclick="saveGeminiApiKey()" style="font-size:0.8rem;padding:8px;margin-top:0"><i class="fas fa-save"></i> Save API Key</button>
+            <div id="gemini-key-status" style="font-size:0.72rem;margin-top:6px"></div>
+          </div>
+          <input type="file" id="whatsappImageInput" accept="image/*" class="file-input">
+          <label for="whatsappImageInput" class="btn-file-label"><i class="fab fa-whatsapp"></i> Upload WhatsApp Screenshot</label>
+          <span id="whatsapp-file-chosen" style="display:block;font-size:0.72rem;color:var(--muted);margin:4px 0 10px">No file chosen</span>
+          <button class="btn-primary full-w" onclick="processWhatsAppOCR()" id="btn-process-whatsapp"><i class="fas fa-magic"></i> Process Screenshot</button>
+          <div id="whatsapp-ocr-status" style="margin-top:12px;font-size:0.82rem"></div>
+          <div id="whatsapp-ocr-results" style="margin-top:10px"></div>
+        </div>
+      </div>
+
+      <!-- Themes -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap" style="background:rgba(200,241,53,0.1);border-color:rgba(200,241,53,0.3);color:var(--accent)"><i class="fas fa-palette"></i></span>
+          <span class="acc-label">Themes</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Switch between 10 themes. Applies to all UI elements and export posters.</p>
+          <div class="theme-grid" id="theme-grid"></div>
+        </div>
+      </div>
+
+      <!-- Match Evidence -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap"><i class="fas fa-photo-film"></i></span>
+          <span class="acc-label">Match Evidence</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Screenshots submitted with results — organised by match.</p>
+          <div id="evidence-grid" class="evidence-grid-organized"><p style="color:var(--muted);font-size:0.82rem">No evidence images yet.</p></div>
+        </div>
+      </div>
+
+      <!-- Data Management -->
+      <div class="acc-item">
+        <button class="acc-trigger" onclick="toggleAcc(this)">
+          <span class="acc-icon-wrap"><i class="fas fa-database"></i></span>
+          <span class="acc-label">Data Management</span>
+          <i class="fas fa-chevron-down acc-chevron"></i>
+        </button>
+        <div class="acc-body">
+          <p class="acc-desc">Backup or restore league data as JSON.</p>
+          <button class="btn-outline full-w" onclick="exportData()"><i class="fas fa-download"></i> Export JSON Backup</button>
+          <button class="btn-outline full-w" onclick="document.getElementById('importBackup').click()"><i class="fas fa-upload"></i> Restore Backup</button>
+          <input type="file" id="importBackup" accept=".json" style="display:none">
+        </div>
+      </div>
+
+    </div><!-- end admin-accordion -->
+  </section>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-tab="dashboard"><i class="fas fa-trophy"></i><span>Standings</span></button>
+  <button class="nav-btn" data-tab="fixtures"><i class="fas fa-futbol"></i><span>Fixtures</span></button>
+  <button class="nav-btn" data-tab="results"><i class="fas fa-check-double"></i><span>Results</span></button>
+  <button class="nav-btn" data-tab="calendar"><i class="fas fa-calendar-alt"></i><span>Calendar</span></button>
+  <button class="nav-btn" data-tab="seasons"><i class="fas fa-layer-group"></i><span>Seasons</span></button>
+  <button class="nav-btn" data-tab="rules"><i class="fas fa-scroll"></i><span>Rules</span></button>
+  <button class="nav-btn" data-tab="admin"><i class="fas fa-shield-halved"></i><span>Admin</span></button>
+</nav>
+
+<!-- EXPORT POSTERS (off-screen) -->
+<div id="fixture-capture-area" class="export-poster" style="position:absolute;top:0;left:-9999px;z-index:-1;visibility:hidden">
+  <div class="poster-top-bar"></div>
+  <div class="poster-header">
+    <div class="poster-logo-text">METTLESTATE</div>
+    <div class="poster-title">MATCHDAY FIXTURES</div>
+    <div class="poster-sub" id="poster-fix-season">EA FC MOBILE LEAGUE · SEASON 1</div>
+  </div>
+  <div id="poster-fixture-list" class="poster-match-list"></div>
+  <div class="poster-footer"><span>#MettlestateLeague</span><span>@Astral Reign</span></div>
+  <div class="poster-bottom-bar"></div>
+</div>
+
+<div id="lb-capture-area" class="export-poster lb-poster" style="position:absolute;top:0;left:-9999px;z-index:-1;visibility:hidden">
+  <div class="poster-top-bar"></div>
+  <div class="poster-header">
+    <div class="poster-logo-text">METTLESTATE</div>
+    <div class="poster-title">LEAGUE STANDINGS</div>
+    <div class="poster-sub" id="poster-lb-season">EA FC MOBILE LEAGUE · SEASON 1</div>
+  </div>
+  <div id="poster-lb-table" class="poster-lb-content"></div>
+  <div class="poster-footer"><span>#MettlestateLeague</span><span>@Astral Reign</span></div>
+  <div class="poster-bottom-bar"></div>
+</div>
+
+<div id="rules-capture-area" class="export-poster" style="position:absolute;top:0;left:-9999px;z-index:-1;visibility:hidden;padding-bottom:20px">
+  <div class="poster-top-bar"></div>
+  <div class="poster-header">
+    <div class="poster-logo-text">METTLESTATE</div>
+    <div class="poster-title">LEAGUE RULES</div>
+    <div class="poster-sub">EA FC MOBILE LEAGUE · SEASON 1</div>
+  </div>
+  <div id="poster-rules-content" style="padding:24px 50px"></div>
+  <div class="poster-footer"><span>#MettlestateLeague</span><span>@Astral Reign</span></div>
+  <div class="poster-bottom-bar"></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <div class="lightbox-inner">
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-caption"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- SCRIPTS (ORDER MATTERS) -->
+<script src="js/github.js"></script>
+<script src="js/discord.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/automation.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
