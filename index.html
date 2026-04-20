@@ -2,712 +2,1168 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#04010F">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Mettlestate × EA FC League</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link rel="stylesheet" href="css/styles.css">
-<link rel="stylesheet" href="css/animations.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SCALEMARK</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #252b38;
+    --accent: #00e5c8;
+    --accent2: #0066ff;
+    --warn: #ff6b35;
+    --text: #c8d0e0;
+    --text-dim: #5a6478;
+    --text-bright: #eef2ff;
+    --grid: rgba(0,229,200,0.04);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    overflow-x: hidden;
+  }
+
+  body {
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    position: relative;
+  }
+
+  .logo-icon svg { width: 100%; height: 100%; }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    color: var(--text-bright);
+  }
+
+  .logo-sub {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: block;
+    margin-top: -2px;
+  }
+
+  .step-pills {
+    display: flex;
+    gap: 6px;
+  }
+
+  .step-pill {
+    padding: 4px 12px;
+    border-radius: 2px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    background: transparent;
+    transition: all 0.2s;
+  }
+
+  .step-pill.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,200,0.06);
+  }
+
+  .step-pill.done {
+    border-color: #2a3a35;
+    color: #2a8070;
+    background: rgba(0,229,200,0.03);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* ── SECTION CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .card-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 2px;
+    background: var(--accent);
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-num.dim { background: var(--border); color: var(--text-dim); }
+  .card-num.done { background: #1a3830; color: var(--accent); }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-bright);
+  }
+
+  .card-desc { font-size: 10px; color: var(--text-dim); letter-spacing: 0.08em; margin-top: 2px; }
+
+  .card-body { padding: 20px; }
+
+  /* ── UPLOAD ZONE ── */
+  .upload-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: 4px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: rgba(0,229,200,0.04); }
+
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+  .upload-icon { color: var(--accent); margin-bottom: 12px; opacity: 0.6; }
+  .upload-zone h3 { font-family: 'Syne', sans-serif; font-size: 14px; color: var(--text-bright); margin-bottom: 6px; }
+  .upload-zone p { font-size: 10px; color: var(--text-dim); letter-spacing: 0.1em; }
+
+  /* ── PAGE STRIP ── */
+  #page-strip {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 2px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .page-thumb {
+    flex-shrink: 0;
+    width: 80px;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+    background: var(--surface2);
+  }
+
+  .page-thumb:hover { border-color: var(--text-dim); }
+  .page-thumb.active { border-color: var(--accent); }
+
+  .page-thumb canvas { width: 100%; display: block; }
+  .page-thumb-label { font-size: 8px; color: var(--text-dim); text-align: center; padding: 4px 0; letter-spacing: 0.1em; }
+
+  /* ── SCREEN SETUP ── */
+  .device-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .device-btn {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    text-align: left;
+    transition: all 0.15s;
+  }
+
+  .device-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,200,0.05); }
+  .device-btn.selected { border-color: var(--accent); background: rgba(0,229,200,0.1); color: var(--accent); }
+
+  .device-btn .d-name { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600; color: inherit; }
+  .device-btn .d-ppi { font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+  .device-btn.selected .d-ppi { color: rgba(0,229,200,0.6); }
+
+  .divider { display: flex; align-items: center; gap: 12px; color: var(--text-dim); font-size: 10px; letter-spacing: 0.1em; margin: 14px 0; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── INPUTS ── */
+  .input-row { display: flex; gap: 10px; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); }
+
+  .field input, .field select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-bright);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--text-dim); }
+
+  /* ── CALIBRATION CANVAS ── */
+  #canvas-wrap {
+    position: relative;
+    overflow: auto;
+    max-height: 520px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: #05070a;
+    cursor: crosshair;
+  }
+
+  #render-canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  #hit-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  .cal-instructions {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .cal-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .cal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+
+  .cal-dot.a { border-color: var(--accent); background: rgba(0,229,200,0.25); }
+  .cal-dot.b { border-color: var(--warn); background: rgba(255,107,53,0.25); }
+
+  /* ── MODE TABS ── */
+  .mode-tabs { display: flex; gap: 0; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+
+  .mode-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .mode-tab:not(:last-child) { border-right: 1px solid var(--border); }
+  .mode-tab.active { background: rgba(0,229,200,0.1); color: var(--accent); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 10px 20px;
+    border: 1px solid;
+    border-radius: 3px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .btn-primary { border-color: var(--accent); color: var(--accent); background: rgba(0,229,200,0.08); }
+  .btn-primary:hover { background: rgba(0,229,200,0.18); }
+  .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-ghost { border-color: var(--border); color: var(--text-dim); background: transparent; }
+  .btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+  .btn-export { border-color: var(--accent); color: #000; background: var(--accent); font-weight: 700; }
+  .btn-export:hover { background: #00f5d8; }
+
+  /* ── RESULTS ── */
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .result-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 14px 16px;
+  }
+
+  .result-stat .r-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .result-stat .r-value { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .result-stat .r-unit { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+
+  .instructions-box {
+    background: rgba(0,229,200,0.04);
+    border: 1px solid rgba(0,229,200,0.2);
+    border-radius: 3px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+
+  .instructions-box h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .instructions-box ol {
+    list-style: none;
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .instructions-box li {
+    counter-increment: step;
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .instructions-box li::before {
+    content: counter(step);
+    width: 18px;
+    height: 18px;
+    border-radius: 2px;
+    background: rgba(0,229,200,0.15);
+    color: var(--accent);
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* ── CALIBRATION RULER ── */
+  #ruler-bar {
+    height: 6px;
+    background: var(--accent);
+    border-radius: 1px;
+    margin: 12px 0 6px;
+    position: relative;
+  }
+
+  #ruler-bar::before, #ruler-bar::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    width: 2px;
+    height: 14px;
+    background: var(--accent);
+  }
+
+  #ruler-bar::before { left: 0; }
+  #ruler-bar::after { right: 0; }
+
+  #ruler-px-label { font-size: 9px; color: var(--text-dim); letter-spacing: 0.1em; }
+
+  /* ── STATUS ROW ── */
+  .status-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+  }
+
+  .status-item { display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+  .status-dot.ok { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .status-dot.warn { background: var(--warn); }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 10px 20px;
+    border-radius: 3px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 640px) {
+    .step-pills { display: none; }
+    .input-row { flex-direction: column; }
+    .result-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
 </head>
 <body>
 
-<!-- BACKGROUNDS -->
-<canvas id="starfield-canvas"></canvas>
-<div class="bg-ambient">
-  <div class="bg-orb bg-orb-1"></div>
-  <div class="bg-orb bg-orb-2"></div>
-  <div class="bg-orb bg-orb-3"></div>
-</div>
-<div class="bg-grid"></div>
-<div class="grain"></div>
-<div class="scanlines"></div>
-
-<!-- TOP BAR -->
-<header class="top-bar">
-  <div class="top-bar-brand">
-    <img src="assets/logo.png" alt="Logo" class="top-logo" onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex'">
-    <div id="logo-fb" class="top-logo-fallback" style="display:none">M</div>
-    <div class="top-bar-titles">
-      <div class="top-bar-name">METTLESTATE <span class="accent">×</span> EA FC</div>
-      <div class="top-bar-sub" id="sast-clock">League Manager v4</div>
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 28 28" fill="none">
+        <rect x="2" y="2" width="24" height="24" stroke="#00e5c8" stroke-width="1.5" fill="none"/>
+        <line x1="2" y1="14" x2="28" y2="14" stroke="#00e5c8" stroke-width="0.8" opacity="0.4"/>
+        <line x1="14" y1="2" x2="14" y2="28" stroke="#00e5c8" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="14" cy="14" r="3" fill="#00e5c8"/>
+        <circle cx="22" cy="6" r="2" fill="#ff6b35"/>
+        <line x1="14" y1="14" x2="22" y2="6" stroke="#00e5c8" stroke-width="1" stroke-dasharray="2 2"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">SCALEMARK</div>
+      <span class="logo-sub">PDF → Real-World Scale</span>
     </div>
   </div>
-  <div class="top-bar-right">
-    <div class="season-pill" onclick="switchTab('seasons')" title="Season selector">
-      <i class="fas fa-trophy"></i>
-      <span id="season-pill-label">S1</span>
-      <i class="fas fa-chevron-down"></i>
-    </div>
-    <div class="gh-status-pill">
-      <div id="gh-status-dot" class="status-dot status-local"></div>
-      <span id="gh-status-label">Local</span>
-    </div>
+  <div class="step-pills">
+    <div class="step-pill active" id="pill-1">01 PDF</div>
+    <div class="step-pill" id="pill-2">02 Screen</div>
+    <div class="step-pill" id="pill-3">03 Calibrate</div>
+    <div class="step-pill" id="pill-4">04 Export</div>
   </div>
 </header>
 
-<!-- SYNC BAR -->
-<div id="sync-bar" class="sync-bar hidden" role="status" aria-live="polite">
-  <span id="sync-icon"><i class="fas fa-circle-notch fa-spin"></i></span>
-  <span id="sync-msg">Syncing…</span>
-</div>
+<main>
 
-<main class="main-content">
-
-  <!-- ═══════════════ STANDINGS ═══════════════ -->
-  <section id="dashboard" class="tab-content active">
-    <div class="page-header">
-      <div class="page-header-text">
-        <h2>Standings</h2>
-        <p class="page-subtitle" id="standings-subtitle">Live rankings · Updated in real-time</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-icon-action" onclick="downloadLeaderboardImage()" title="Export standings image"><i class="fas fa-camera"></i></button>
-        <button class="btn-icon-action" onclick="exportData()" title="Backup data"><i class="fas fa-download"></i></button>
+  <!-- STEP 1: PDF UPLOAD -->
+  <div class="card" id="card-pdf">
+    <div class="card-header">
+      <div class="card-num" id="num-1">1</div>
+      <div>
+        <div class="card-title">Load PDF</div>
+        <div class="card-desc">Upload your drawing PDF and select a page</div>
       </div>
     </div>
-    <div id="live-bar" class="live-bar" style="display:none">
-      <div class="live-dot"></div>
-      <span class="live-text" id="live-bar-text">SEASON IN PROGRESS</span>
-    </div>
-    <div class="stats-ticker" id="stats-ticker">
-      <div class="ticker-item t-accent"><div class="ticker-label">Players</div><div class="ticker-val" id="stat-players">0</div><div class="ticker-sub">registered</div></div>
-      <div class="ticker-item t-accent2"><div class="ticker-label">Matches</div><div class="ticker-val" id="stat-matches">0</div><div class="ticker-sub">played</div></div>
-      <div class="ticker-item t-purple"><div class="ticker-label">Goals</div><div class="ticker-val" id="stat-goals">0</div><div class="ticker-sub">total</div></div>
-      <div class="ticker-item t-danger"><div class="ticker-label">Pending</div><div class="ticker-val" id="stat-pending">0</div><div class="ticker-sub">fixtures</div></div>
-    </div>
-    <div id="podium-area" class="podium-area" style="display:none"></div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table id="leaderboardTable" class="league-table">
-          <thead><tr>
-            <th class="th-pos">#</th>
-            <th class="th-player">PLAYER</th>
-            <th title="Played">P</th><th title="Wins">W</th><th title="Draws">D</th><th title="Losses">L</th>
-            <th title="Goals For" class="hide-xs">GF</th><th title="Goals Against" class="hide-xs">GA</th>
-            <th title="Goal Difference">GD</th>
-            <th title="Points" class="th-pts">PTS</th>
-            <th title="Form" class="hide-sm">FORM</th>
-          </tr></thead>
-          <tbody id="leaderboardBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════ FIXTURES ═══════════════ -->
-  <section id="fixtures" class="tab-content">
-    <div class="page-header">
-      <div class="page-header-text">
-        <h2>Fixtures</h2>
-        <p class="page-subtitle">Pending matches · Awaiting results</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-icon-action" onclick="downloadFixtureImage()" title="Export fixtures image"><i class="fas fa-camera"></i></button>
-      </div>
-    </div>
-    <div id="fixtures-grid" class="cards-grid"></div>
-  </section>
-
-  <!-- ═══════════════ RESULTS ═══════════════ -->
-  <section id="results" class="tab-content">
-    <div class="page-header">
-      <div class="page-header-text">
-        <h2>Results</h2>
-        <p class="page-subtitle">Completed matches · Full history</p>
-      </div>
-    </div>
-    <div class="search-wrap">
-      <i class="fas fa-search"></i>
-      <input type="text" class="search-input" id="results-search" placeholder="Filter by player name…" oninput="filterResults(this.value)">
-    </div>
-    <div id="results-list" class="results-list"></div>
-  </section>
-
-  <!-- ═══════════════ PLAYERS ═══════════════ -->
-  <section id="players" class="tab-content">
-    <div class="page-header">
-      <div class="page-header-text">
-        <h2>Players</h2>
-        <p class="page-subtitle"><span id="player-count">0</span> registered participants</p>
-      </div>
-    </div>
-    <div class="search-wrap">
-      <i class="fas fa-search"></i>
-      <input type="text" class="search-input" id="player-search" placeholder="Search players…" oninput="filterPlayers(this.value)">
-    </div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table id="playerMgmtTable" class="league-table">
-          <thead><tr>
-            <th>#</th><th class="th-player">PLAYER</th>
-            <th class="hide-sm">USERNAME</th><th class="hide-sm">POSTPONE</th>
-            <th class="hide-xs">RECORD</th><th>ACT</th>
-          </tr></thead>
-          <tbody id="playerMgmtBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════ CALENDAR ═══════════════ -->
-  <section id="calendar" class="tab-content">
-    <div class="page-header">
-      <div class="page-header-text">
-        <h2>Calendar</h2>
-        <p class="page-subtitle">South African holidays · GMT+2 / SAST</p>
-      </div>
-      <div class="header-actions">
-        <span class="calendar-tz-badge">GMT+2</span>
-      </div>
-    </div>
-    <div class="calendar-wrap">
-      <div class="calendar-header-row">
-        <button class="calendar-nav-btn" onclick="Calendar.navigate(-1)"><i class="fas fa-chevron-left"></i></button>
-        <div>
-          <div class="calendar-month-title" id="cal-month-title">April 2026</div>
+    <div class="card-body">
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="pdf-input" accept=".pdf">
+        <div class="upload-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <rect x="8" y="4" width="20" height="26" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M22 4v8h6" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="12" y1="16" x2="24" y2="16" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+            <line x1="12" y1="20" x2="20" y2="20" stroke="currentColor" stroke-width="1.2" opacity="0.5"/>
+            <circle cx="30" cy="32" r="7" fill="#0a0c10" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="30" y1="28.5" x2="30" y2="35.5" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="26.5" y1="32" x2="33.5" y2="32" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
         </div>
-        <button class="calendar-nav-btn" onclick="Calendar.navigate(1)"><i class="fas fa-chevron-right"></i></button>
+        <h3>Drop PDF here or click to browse</h3>
+        <p>Supports any multi-page PDF document</p>
       </div>
-      <button class="btn-outline" style="font-size:0.7rem;padding:6px 14px;margin-bottom:12px" onclick="Calendar.goToday()"><i class="fas fa-crosshairs"></i> Today</button>
-      <div class="calendar-grid-header">
-        <div class="calendar-day-header">SUN</div><div class="calendar-day-header">MON</div><div class="calendar-day-header">TUE</div>
-        <div class="calendar-day-header">WED</div><div class="calendar-day-header">THU</div><div class="calendar-day-header">FRI</div>
-        <div class="calendar-day-header">SAT</div>
-      </div>
-      <div class="calendar-grid" id="cal-grid"></div>
-    </div>
-    <div style="margin-top:20px">
-      <div class="page-header" style="margin-bottom:12px">
-        <div class="page-header-text">
-          <h2 style="font-size:1.2rem">Upcoming SA Holidays</h2>
-          <p class="page-subtitle">Fixtures auto-skip on statutory holidays when configured</p>
-        </div>
-      </div>
-      <div class="holiday-list" id="holiday-list"></div>
-    </div>
-  </section>
 
-  <!-- ═══════════════ SEASONS ═══════════════ -->
-  <section id="seasons" class="tab-content">
-    <div class="page-header">
-      <div class="page-header-text">
-        <h2>Seasons</h2>
-        <p class="page-subtitle">Season management · Archive & History</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-icon-action" onclick="renderSeasonsTab()" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+      <div id="page-select-area" class="hidden" style="margin-top:16px;">
+        <div style="font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Select page</div>
+        <div id="page-strip"></div>
       </div>
     </div>
+    <div class="status-row">
+      <div class="status-item">
+        <div class="status-dot" id="dot-pdf"></div>
+        <span id="status-pdf">No PDF loaded</span>
+      </div>
+    </div>
+  </div>
 
-    <div class="new-season-card">
-      <div class="new-season-icon">🏆</div>
-      <div class="new-season-title">Start a New Season</div>
-      <div class="new-season-desc">Archive the current season to GitHub, reset all player stats and fixtures.<br>Player roster is carried over with 20 fresh postponements each.</div>
-      <button class="btn-primary" style="margin-top:16px;max-width:260px;margin-left:auto;margin-right:auto" onclick="startNewSeason()"><i class="fas fa-plus-circle"></i> Start New Season</button>
-    </div>
-
-    <div class="page-header" style="margin-top:20px;margin-bottom:12px">
-      <div class="page-header-text"><h2 style="font-size:1.2rem">All Seasons</h2></div>
-    </div>
-    <div class="seasons-grid" id="seasons-grid">
-      <div style="color:var(--muted);padding:20px;text-align:center"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
-    </div>
-  </section>
-
-  <!-- ═══════════════ RULES ═══════════════ -->
-  <section id="rules" class="tab-content">
-    <div class="page-header">
-      <div class="page-header-text">
-        <h2>Rules</h2>
-        <p class="page-subtitle">Official regulations · <span id="rules-season-label">Season 1</span></p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-icon-action" onclick="downloadRulesImage()" title="Export rules"><i class="fas fa-camera"></i></button>
+  <!-- STEP 2: SCREEN SETUP -->
+  <div class="card" id="card-screen">
+    <div class="card-header">
+      <div class="card-num dim" id="num-2">2</div>
+      <div>
+        <div class="card-title">Screen Setup</div>
+        <div class="card-desc">Tell us your tablet's pixel density for accurate scaling</div>
       </div>
     </div>
-    <div class="rules-page" id="rules-content">
-      <div class="rules-brand-header">
-        <div class="rules-brand-left">
-          <img src="assets/logo.png" alt="" class="rules-brand-logo" onerror="this.style.display='none'">
-          <div>
-            <div class="rules-brand-name">METTLESTATE <span>× EA FC MOBILE</span></div>
-            <div class="rules-brand-url"><i class="fas fa-globe"></i> mettlestate.com</div>
-          </div>
-        </div>
-        <div class="rules-season-badge" id="rules-season-badge">SEASON 1</div>
-      </div>
-      <div class="rules-points-banner">
-        <div class="rules-points-item win"><span class="rules-points-num">3</span><span class="rules-points-label">Win</span></div>
-        <div class="rules-points-divider"></div>
-        <div class="rules-points-item draw"><span class="rules-points-num">1</span><span class="rules-points-label">Draw</span></div>
-        <div class="rules-points-divider"></div>
-        <div class="rules-points-item loss"><span class="rules-points-num">0</span><span class="rules-points-label">Loss</span></div>
-        <div class="rules-points-divider"></div>
-        <div class="rules-points-item info"><span class="rules-points-num" style="font-size:1.1rem">GD</span><span class="rules-points-label">Tiebreak</span></div>
-      </div>
-      <div class="rules-grid">
-        <div class="rules-section">
-          <h3><i class="fas fa-calendar-alt"></i> Fixtures &amp; Scheduling</h3>
-          <ul>
-            <li>Fixtures are sent between <strong>00:00–10:00 SAST (GMT+2)</strong>, Monday to Saturday, excluding public holidays.</li>
-            <li>Deadline for results is <strong class="clr-red">23:59 same day. NO LATE SUBMISSIONS ACCEPTED.</strong></li>
-            <li>You <strong>cannot</strong> send a first message to your opponent after <strong>19:00</strong>.</li>
-            <li>Fixtures display the first <strong>4 letters</strong> of each opponent's WhatsApp username.</li>
-          </ul>
-        </div>
-        <div class="rules-section">
-          <h3><i class="fas fa-camera"></i> Result Submission</h3>
-          <ul>
-            <li>Submit a <strong>screenshot of your result</strong> within a <strong class="clr-yellow">15-minute grace period</strong> after the match.</li>
-            <li>If contact was attempted, submit <strong>screenshot evidence</strong> within a <strong class="clr-yellow">6-hour grace period</strong> — only after 19:00.</li>
-            <li>If nothing is submitted when grace period ends, the game is a <strong class="clr-yellow">draw</strong>.</li>
-            <li>Tag <strong>both admins</strong> in the Mettlestate group when submitting results or evidence.</li>
-            <li><strong class="clr-red">All league messages must go on the Mettlestate group.</strong> No direct messaging.</li>
-          </ul>
-        </div>
-        <div class="rules-section">
-          <h3><i class="fas fa-user-slash"></i> No-Shows &amp; Forfeits</h3>
-          <ul>
-            <li>If opponent doesn't arrive at agreed time — <strong class="clr-red">automatic forfeit</strong> after <strong>10-minute grace</strong>.</li>
-            <li>If your opponent sets a time and is <strong>30 minutes late</strong>, you are awarded the win.</li>
-            <li>Failure to follow this results in a <strong>forfeit or draw</strong> at admin discretion.</li>
-          </ul>
-        </div>
-        <div class="rules-section rules-section--warn">
-          <h3><i class="fas fa-clock"></i> Postponements — 20 Per Season</h3>
-          <ul>
-            <li>Each player receives <strong class="clr-yellow">20 postponements per season</strong> total. This includes games postponed by opponents against you.</li>
-            <li>Once you reach <strong class="clr-red">0 postponements</strong>, any further postponement attempt results in an <strong class="clr-red">AUTO-FORFEIT</strong> — your opponent is awarded 3-0 automatically, no exceptions.</li>
-            <li>Use postponements wisely — there are no refunds or bonus allocations during the season.</li>
-            <li>Exceptions for genuine emergencies (broken phone, family bereavement, hospitalisation) are at <strong>admin discretion only</strong> — submit evidence in the group chat.</li>
-            <li>Postponement requests must be made via the Mettlestate group tagging admins <strong>before</strong> the fixture deadline.</li>
-          </ul>
-        </div>
-        <div class="rules-section">
-          <h3><i class="fas fa-wifi"></i> Disconnections</h3>
-          <ul>
-            <li>Immediately report to admin and opponent. Arrange a rematch.</li>
-            <li>If network is the cause, provide <strong>3–5 screenshots</strong> at the 10-minute in-game mark, or a video if possible.</li>
-            <li>If a goal was scored before the lag, the match replays with a <strong>handicap scoreline</strong>.</li>
-            <li><strong class="clr-red">No evidence = straight forfeit. No excuses.</strong></li>
-          </ul>
-        </div>
-        <div class="rules-section rules-section--danger">
-          <h3><i class="fas fa-ban"></i> Strictly Prohibited</h3>
-          <ul>
-            <li><strong class="clr-red">KickOff Glitch</strong> — forbidden. Caught with proof = forfeit.</li>
-            <li><strong class="clr-red">Cross Spamming</strong> — max <strong>5 attempts per match</strong>. Exceeded with proof = forfeit.</li>
-            <li><strong class="clr-red">Lob Ball Spamming</strong> — max <strong>5 attempts per match</strong>. Exceeded with proof = forfeit.</li>
-            <li><strong class="clr-red">Passive Playing / Time-Wasting</strong> — wasting <strong>10 minutes game-time</strong> with possession = loss. Requires 3 screenshots or short video.</li>
-            <li>Breaching Mettlestate community rules = <strong class="clr-red">removal by admins</strong>.</li>
-          </ul>
-        </div>
-        <div class="rules-section">
-          <h3><i class="fas fa-gavel"></i> Disputes &amp; Admin</h3>
-          <ul>
-            <li>All disputes handled by <strong>organisers, helpers, and admin</strong>. Raise it in the group.</li>
-            <li>Admin decisions are <strong>final</strong>.</li>
-            <li>Rules may be updated between seasons at organiser discretion.</li>
-            <li>Visit <a href="https://mettlestate.com" target="_blank" class="rules-link">mettlestate.com</a> for community and general rules.</li>
-          </ul>
-        </div>
-        <div class="rules-section rules-section--highlight">
-          <h3><i class="fas fa-handshake"></i> Astral Friendly League — Addendum</h3>
-          <p class="rules-note">Additional rules for the <strong>Mettlestate × Astral Friendly League</strong>:</p>
-          <ul>
-            <li>You have <strong>23 hours (00:00–23:00)</strong> to play. Unplayed games = <strong class="clr-yellow">draw</strong>.</li>
-            <li>Proof of contact must be submitted before <strong>23:00</strong> and show contact made before <strong>20:00</strong> to be awarded no-show win.</li>
-            <li><strong class="clr-red">LATE RESULTS OR REPORTS ARE NOT ACCEPTED.</strong></li>
-            <li>All standard conduct rules apply here too.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="rules-footer">Powered by <a href="https://mettlestate.com" target="_blank">mettlestate.com</a> &nbsp;·&nbsp; #MettlestateLeague</div>
-    </div>
-  </section>
-
-  <!-- ═══════════════ ADMIN ═══════════════ -->
-  <section id="admin" class="tab-content">
-    <div class="page-header">
-      <div class="page-header-text">
-        <h2>Admin</h2>
-        <p class="page-subtitle">League management · Restricted access</p>
-      </div>
-    </div>
-    <div class="admin-accordion">
-
-      <!-- Log Score -->
-      <div class="acc-item acc-open">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap"><i class="fas fa-edit"></i></span>
-          <span class="acc-label">Log Score</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
+    <div class="card-body">
+      <div style="font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">Common tablets</div>
+      <div class="device-grid" id="device-grid">
+        <button class="device-btn" data-ppi="264" onclick="selectDevice(this)">
+          <div class="d-name">iPad Air / Pro 11"</div>
+          <div class="d-ppi">264 PPI</div>
         </button>
-        <div class="acc-body">
-          <p class="acc-desc">Record the result with optional screenshot evidence.</p>
-          <select id="scoreFixtureSelect" class="field styled-select"></select>
-          <div class="score-inputs">
-            <input type="number" id="scoreHome" min="0" placeholder="0" class="score-num">
-            <span class="score-dash">—</span>
-            <input type="number" id="scoreAway" min="0" placeholder="0" class="score-num">
-          </div>
-          <input type="file" id="matchImageInput" accept="image/*" class="file-input">
-          <label for="matchImageInput" class="btn-file-label" id="matchImageLabel"><i class="fas fa-image"></i> Attach Screenshot (optional)</label>
-          <div id="match-image-preview-wrap" style="display:none;margin-bottom:10px">
-            <img id="match-image-preview" src="" alt="preview" style="width:100%;border-radius:8px;border:1px solid var(--border-2);max-height:150px;object-fit:cover">
-            <button onclick="clearMatchImage()" style="background:var(--danger-soft);color:var(--danger);border:1px solid rgba(255,45,85,0.25);padding:9px;font-size:0.78rem;width:100%;margin-top:5px;border-radius:7px;cursor:pointer"><i class="fas fa-times"></i> Remove Image</button>
-          </div>
-          <button class="btn-primary full-w" onclick="logScore()"><i class="fas fa-check"></i> Log Result</button>
-        </div>
+        <button class="device-btn" data-ppi="264" onclick="selectDevice(this)">
+          <div class="d-name">iPad Pro 12.9"</div>
+          <div class="d-ppi">264 PPI</div>
+        </button>
+        <button class="device-btn" data-ppi="326" onclick="selectDevice(this)">
+          <div class="d-name">iPad Mini 6</div>
+          <div class="d-ppi">326 PPI</div>
+        </button>
+        <button class="device-btn" data-ppi="274" onclick="selectDevice(this)">
+          <div class="d-name">Samsung Tab S8</div>
+          <div class="d-ppi">274 PPI</div>
+        </button>
+        <button class="device-btn" data-ppi="266" onclick="selectDevice(this)">
+          <div class="d-name">Samsung Tab S8+</div>
+          <div class="d-ppi">266 PPI</div>
+        </button>
+        <button class="device-btn" data-ppi="240" onclick="selectDevice(this)">
+          <div class="d-name">Tab S8 Ultra</div>
+          <div class="d-ppi">240 PPI</div>
+        </button>
+        <button class="device-btn" data-ppi="267" onclick="selectDevice(this)">
+          <div class="d-name">Surface Pro 9</div>
+          <div class="d-ppi">267 PPI</div>
+        </button>
+        <button class="device-btn" data-ppi="220" onclick="selectDevice(this)">
+          <div class="d-name">Samsung Tab A8</div>
+          <div class="d-ppi">220 PPI</div>
+        </button>
       </div>
 
-      <!-- Generate Fixtures -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap"><i class="fas fa-shuffle"></i></span>
-          <span class="acc-label">Generate Fixtures</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Create random matchday pairings from registered players.</p>
-          <select id="matchday-select" class="field styled-select">
-            <option value="random">Random Pairs</option>
-            <option value="roundrobin">Round Robin (All vs All)</option>
-          </select>
-          <div class="acc-btn-row">
-            <button class="btn-primary" onclick="generateDraw()"><i class="fas fa-shuffle"></i> Generate Draw</button>
-            <button class="btn-danger" onclick="clearData()"><i class="fas fa-trash"></i> Reset League</button>
-          </div>
+      <div class="divider">or enter manually</div>
+
+      <div class="input-row">
+        <div class="field" style="flex:1">
+          <label>Custom PPI / DPI</label>
+          <input type="number" id="custom-ppi" placeholder="e.g. 264" min="72" max="600" oninput="onCustomPPI()">
         </div>
+        <button class="btn btn-ghost" onclick="showRulerCalibration()" style="height:38px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="5" width="12" height="4" rx="0.5" stroke="currentColor" stroke-width="1.2"/><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="0.8" opacity="0.4"/><line x1="3" y1="5" x2="3" y2="9" stroke="currentColor"/><line x1="7" y1="5" x2="7" y2="9" stroke="currentColor"/><line x1="11" y1="5" x2="11" y2="9" stroke="currentColor"/></svg>
+          Physical ruler
+        </button>
       </div>
 
-      <!-- Automation -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap" style="background:rgba(0,229,255,0.1);border-color:rgba(0,229,255,0.3);color:var(--accent2)"><i class="fas fa-robot"></i></span>
-          <span class="acc-label">Auto-Scheduler (SAST)</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
+      <div id="ruler-cal" class="hidden" style="margin-top:16px;padding:14px 16px;border:1px solid var(--border);border-radius:3px;background:var(--surface2);">
+        <div style="font-size:10px;color:var(--text-dim);margin-bottom:10px;letter-spacing:0.08em;">
+          Measure the bar below with a physical ruler, then enter its length:
+        </div>
+        <div id="ruler-bar"></div>
+        <div id="ruler-px-label"></div>
+        <div class="input-row" style="margin-top:10px;">
+          <div class="field" style="flex:1">
+            <label>Measured length (mm)</label>
+            <input type="number" id="ruler-measured" placeholder="e.g. 50.5" step="0.1" oninput="calcRulerPPI()">
+          </div>
+          <div class="field" style="width:100px">
+            <label>Calculated PPI</label>
+            <input type="number" id="ruler-result-ppi" readonly style="color:var(--accent);">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="applyRulerPPI()" style="margin-top:10px;font-size:10px;padding:8px 14px;">Apply</button>
+      </div>
+    </div>
+    <div class="status-row">
+      <div class="status-item">
+        <div class="status-dot" id="dot-screen"></div>
+        <span id="status-screen">No PPI set</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: CALIBRATION -->
+  <div class="card" id="card-cal">
+    <div class="card-header">
+      <div class="card-num dim" id="num-3">3</div>
+      <div>
+        <div class="card-title">Drawing Calibration</div>
+        <div class="card-desc">Identify two known points on the drawing, or enter drawing scale</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-points" onclick="switchCalMode('points')">
+          ✦ Tap Two Points
         </button>
-        <div class="acc-body">
-          <p class="acc-desc">Configure automatic fixture generation and auto-draws at specified SAST times. System checks every minute.</p>
-          <div class="auto-config-grid">
-            <div class="auto-config-item">
-              <label>
-                <label class="toggle-switch"><input type="checkbox" id="auto-fixture-enabled" onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
-                <span class="auto-config-title">Auto-Generate Fixtures</span>
-              </label>
-              <div class="auto-config-desc">Automatically generate Round Robin / Random fixtures at a set time each day.</div>
-              <div class="time-input-row">
-                <label style="font-size:0.72rem;color:var(--muted-2);font-family:'JetBrains Mono',monospace">Time (SAST):</label>
-                <input type="time" id="auto-fixture-time" class="time-input" value="02:00" onchange="Automation.saveConfigUI()">
-              </div>
-              <select id="auto-fixture-mode" class="field styled-select" onchange="Automation.saveConfigUI()">
-                <option value="roundrobin">Round Robin</option>
-                <option value="random">Random Pairs</option>
-              </select>
-              <div class="auto-countdown" id="auto-fixture-countdown">Disabled</div>
+        <button class="mode-tab" id="tab-scale" onclick="switchCalMode('scale')">
+          ◈ Known Scale
+        </button>
+      </div>
+
+      <!-- TWO POINT MODE -->
+      <div id="mode-points">
+        <div class="cal-instructions">
+          <div class="cal-tag"><div class="cal-dot a"></div><span id="hint-a">Tap point A on drawing</span></div>
+          <div class="cal-dot b" style="margin-left:8px;"></div><span id="hint-b" style="font-size:10px;color:var(--text-dim);letter-spacing:0.08em;">Then tap point B</span>
+          <div style="margin-left:auto">
+            <button class="btn btn-ghost" onclick="resetPoints()" style="font-size:9px;padding:6px 12px;">Reset</button>
+          </div>
+        </div>
+
+        <div id="canvas-wrap">
+          <canvas id="render-canvas"></canvas>
+          <canvas id="hit-canvas"></canvas>
+        </div>
+
+        <div id="px-dist-row" class="hidden" style="margin-top:12px;">
+          <div class="input-row">
+            <div class="field" style="flex:1">
+              <label>Pixel distance between A → B</label>
+              <input type="number" id="px-dist" readonly style="color:var(--text-dim);font-size:11px;">
             </div>
-            <div class="auto-config-item">
-              <label>
-                <label class="toggle-switch"><input type="checkbox" id="auto-draw-enabled" onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
-                <span class="auto-config-title">Auto-Draw Pending Matches</span>
-              </label>
-              <div class="auto-config-desc">At set time, resolve all non-postponed, non-ignored fixtures as 0-0 draws automatically.</div>
-              <div class="time-input-row">
-                <label style="font-size:0.72rem;color:var(--muted-2);font-family:'JetBrains Mono',monospace">Time (SAST):</label>
-                <input type="time" id="auto-draw-time" class="time-input" value="02:00" onchange="Automation.saveConfigUI()">
-              </div>
-              <div class="auto-countdown" id="auto-draw-countdown">Disabled</div>
-            </div>
-            <div class="auto-config-item">
-              <label style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-                <label class="toggle-switch"><input type="checkbox" id="auto-skip-holidays" checked onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
-                <span class="auto-config-title" style="font-size:0.82rem">Skip SA Public Holidays</span>
-              </label>
-              <label style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-                <label class="toggle-switch"><input type="checkbox" id="auto-skip-weekends" onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
-                <span class="auto-config-title" style="font-size:0.82rem">Skip Weekends</span>
-              </label>
-              <label style="display:flex;gap:10px;align-items:center">
-                <label class="toggle-switch"><input type="checkbox" id="auto-notify-discord" checked onchange="Automation.saveConfigUI()"><span class="toggle-slider"></span></label>
-                <span class="auto-config-title" style="font-size:0.82rem">Notify Discord on Auto-Events</span>
-              </label>
+            <div class="field" style="flex:1">
+              <label>Real-world distance (mm)</label>
+              <input type="number" id="real-dist" placeholder="e.g. 2400" step="0.1" oninput="tryCompute()">
             </div>
           </div>
-          <div class="acc-btn-row" style="margin-top:12px">
-            <button class="btn-secondary" onclick="Automation.manualFixture()"><i class="fas fa-play"></i> Run Fixture Now</button>
-            <button class="btn-secondary" onclick="Automation.manualDraw()"><i class="fas fa-random"></i> Run Draw Now</button>
+        </div>
+      </div>
+
+      <!-- KNOWN SCALE MODE -->
+      <div id="mode-scale" class="hidden">
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:14px;line-height:1.7;">
+          Enter the scale ratio printed on the drawing (e.g. 1:50 means 1mm on drawing = 50mm in real life).
+        </div>
+        <div class="input-row">
+          <div class="field">
+            <label>Scale numerator</label>
+            <input type="number" id="scale-num" value="1" min="1" oninput="tryComputeScale()">
           </div>
-          <div style="margin-top:12px"><div style="font-size:0.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;margin-bottom:6px">AUTOMATION LOG</div>
-            <div class="auto-log" id="auto-log-content"><div class="auto-log-entry"><span class="auto-log-msg" style="color:var(--muted)">No events yet.</span></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Manual Match -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap"><i class="fas fa-plus-circle"></i></span>
-          <span class="acc-label">Manual Match</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Manually schedule a specific fixture between two players.</p>
-          <input type="text" id="p1Input" placeholder="Player 1 Username" list="player-list-p1" class="field">
-          <datalist id="player-list-p1"></datalist>
-          <input type="text" id="p2Input" placeholder="Player 2 Username" list="player-list-p2" class="field">
-          <datalist id="player-list-p2"></datalist>
-          <button class="btn-secondary full-w" onclick="addManualMatch()"><i class="fas fa-plus"></i> Add Fixture</button>
-        </div>
-      </div>
-
-      <!-- Add Player -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap"><i class="fas fa-user-plus"></i></span>
-          <span class="acc-label">Add Player</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Manually add a participant to the league.</p>
-          <input type="text" id="addName" placeholder="Full Name" class="field">
-          <input type="text" id="addUsername" placeholder="In-Game Username" class="field">
-          <input type="text" id="addPhone" placeholder="Phone / WhatsApp Contact" class="field">
-          <button class="btn-secondary full-w" onclick="addSinglePlayer()"><i class="fas fa-user-plus"></i> Add Player</button>
-        </div>
-      </div>
-
-      <!-- Import Players -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap"><i class="fas fa-file-import"></i></span>
-          <span class="acc-label">Import Players</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Upload a <code>.txt</code> file. Format per line: <code>Name, Username, Phone</code></p>
-          <input type="file" id="playerImport" accept=".txt" class="file-input">
-          <label for="playerImport" class="btn-file-label"><i class="fas fa-folder-open"></i> Choose File</label>
-          <span id="file-chosen" style="display:block;font-size:0.75rem;color:var(--muted);margin:4px 0 10px">No file chosen</span>
-          <button class="btn-primary full-w" onclick="processImport()"><i class="fas fa-file-import"></i> Import Players</button>
-        </div>
-      </div>
-
-      <!-- GitHub Sync -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#fff"><i class="fab fa-github"></i></span>
-          <span class="acc-label">GitHub Sync</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Connect to your repo so all data and match images are committed automatically.</p>
-          <input type="text"     id="ghOwner"  placeholder="Username / Org" class="field">
-          <input type="text"     id="ghRepo"   placeholder="Repository name" class="field">
-          <input type="text"     id="ghBranch" placeholder="Branch (default: main)" value="main" class="field">
-          <input type="password" id="ghToken"  placeholder="Personal Access Token (repo scope)" class="field">
-          <div class="gh-token-hint"><i class="fas fa-lock"></i> Token stored locally — never sent anywhere except GitHub's API.</div>
-          <div class="acc-btn-row">
-            <button class="btn-primary" onclick="saveGitHubConfig()"><i class="fab fa-github"></i> Save &amp; Connect</button>
-            <button class="btn-danger"  onclick="disconnectGitHub()">Disconnect</button>
-          </div>
-          <button class="btn-outline full-w" id="btn-force-sync" onclick="forceSyncToGitHub()" style="display:none;margin-top:8px"><i class="fas fa-upload"></i> Force Sync Now</button>
-          <div id="gh-connect-status" class="gh-status-msg"></div>
-        </div>
-      </div>
-
-      <!-- Public Leaderboard -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap" style="background:var(--purple-soft);border-color:rgba(191,90,242,0.35);color:var(--purple)"><i class="fas fa-globe"></i></span>
-          <span class="acc-label">Public Leaderboard</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Push live standings to your public-facing GitHub Pages repo so players can view without admin access.</p>
-          <input type="text"     id="pubOwner"  placeholder="Public Repo Owner" class="field">
-          <input type="text"     id="pubRepo"   placeholder="Public Repo Name" class="field">
-          <input type="text"     id="pubBranch" placeholder="Branch (default: main)" value="main" class="field">
-          <input type="password" id="pubToken"  placeholder="PAT Token for public repo" class="field">
-          <div class="gh-token-hint"><i class="fas fa-lock"></i> Token stored locally only.</div>
-          <div class="acc-btn-row">
-            <button class="btn-primary"   onclick="savePublicRepoConfig()"><i class="fas fa-save"></i> Save Config</button>
-            <button class="btn-secondary" onclick="pushToPublicLeaderboard()"><i class="fas fa-upload"></i> Push Live</button>
-          </div>
-          <div id="pub-sync-status" class="gh-status-msg"></div>
-        </div>
-      </div>
-
-      <!-- Discord Webhook -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap" style="background:rgba(88,101,242,0.12);border-color:rgba(88,101,242,0.35);color:#7289DA"><i class="fab fa-discord discord-icon-anim"></i></span>
-          <span class="acc-label">Discord Webhook</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Connect a Discord webhook to receive rich notifications for results, postponements, auto-events, season changes, and more.</p>
-          <input type="url" id="discordWebhook" placeholder="https://discord.com/api/webhooks/…" class="field">
-          <div class="acc-btn-row">
-            <button class="btn-primary" onclick="saveDiscordWebhook()"><i class="fab fa-discord"></i> Save &amp; Test</button>
-          </div>
-          <div id="discord-status" class="gh-status-msg"></div>
-          <div style="font-size:0.72rem;color:var(--muted-2);margin-top:10px;line-height:1.6">
-            <strong style="color:var(--text-soft)">Events logged:</strong> Match results, postponements, auto-forfeits, forfeits, no-shows, fixture generation, auto-draws, season start, player joins/removes, suspensions, leaderboard pushes.
+          <div style="font-size:20px;color:var(--text-dim);padding-bottom:6px;align-self:flex-end;">:</div>
+          <div class="field">
+            <label>Scale denominator</label>
+            <input type="number" id="scale-den" placeholder="e.g. 50" min="1" oninput="tryComputeScale()">
           </div>
         </div>
+        <div style="font-size:9px;color:var(--text-dim);margin-top:10px;letter-spacing:0.1em;">
+          For this to work, the PDF was exported at exactly 1 point = 1/72 inch (standard PDF).
+        </div>
       </div>
 
-      <!-- WhatsApp OCR -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap" style="background:rgba(37,211,102,0.1);border-color:rgba(37,211,102,0.35);color:#25D366"><i class="fab fa-whatsapp"></i></span>
-          <span class="acc-label">WhatsApp OCR</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Upload a WhatsApp chat screenshot to automatically detect postponements, forfeits, no-shows, and results via Gemini AI.</p>
-          <div style="background:rgba(0,229,255,0.05);border:1px solid var(--border-accent2);padding:12px;border-radius:var(--r-sm);margin-bottom:12px">
-            <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;margin-bottom:5px">🔑 Google Gemini API (FREE)</div>
-            <div style="font-size:0.72rem;color:var(--muted);margin-bottom:8px">Get a free key: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/app/apikey</a><br>Free tier: 1,500 requests/day · No credit card required</div>
-            <input type="password" id="geminiApiKey" placeholder="Paste your Gemini API key here" class="field" style="margin-bottom:8px">
-            <button class="btn-outline full-w" onclick="saveGeminiApiKey()" style="font-size:0.8rem;padding:8px;margin-top:0"><i class="fas fa-save"></i> Save API Key</button>
-            <div id="gemini-key-status" style="font-size:0.72rem;margin-top:6px"></div>
+    </div>
+    <div class="status-row">
+      <div class="status-item">
+        <div class="status-dot" id="dot-cal"></div>
+        <span id="status-cal">Not calibrated</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: EXPORT -->
+  <div class="card" id="card-export">
+    <div class="card-header">
+      <div class="card-num dim" id="num-4">4</div>
+      <div>
+        <div class="card-title">Export for PaperCopy</div>
+        <div class="card-desc">Download correctly scaled image</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div id="no-results" style="font-size:11px;color:var(--text-dim);letter-spacing:0.08em;padding:12px 0;">
+        Complete steps 1 – 3 to see results here.
+      </div>
+
+      <div id="results" class="hidden">
+        <div class="result-grid">
+          <div class="result-stat">
+            <div class="r-label">Scale Ratio</div>
+            <div class="r-value" id="r-scale">—</div>
+            <div class="r-unit">1 : X real world</div>
           </div>
-          <input type="file" id="whatsappImageInput" accept="image/*" class="file-input">
-          <label for="whatsappImageInput" class="btn-file-label"><i class="fab fa-whatsapp"></i> Upload WhatsApp Screenshot</label>
-          <span id="whatsapp-file-chosen" style="display:block;font-size:0.72rem;color:var(--muted);margin:4px 0 10px">No file chosen</span>
-          <button class="btn-primary full-w" onclick="processWhatsAppOCR()" id="btn-process-whatsapp"><i class="fas fa-magic"></i> Process Screenshot</button>
-          <div id="whatsapp-ocr-status" style="margin-top:12px;font-size:0.82rem"></div>
-          <div id="whatsapp-ocr-results" style="margin-top:10px"></div>
+          <div class="result-stat">
+            <div class="r-label">Output Width</div>
+            <div class="r-value" id="r-w">—</div>
+            <div class="r-unit">pixels</div>
+          </div>
+          <div class="result-stat">
+            <div class="r-label">Output Height</div>
+            <div class="r-value" id="r-h">—</div>
+            <div class="r-unit">pixels</div>
+          </div>
+          <div class="result-stat">
+            <div class="r-label">PaperCopy Zoom</div>
+            <div class="r-value" id="r-zoom">—</div>
+            <div class="r-unit">% (if resizing manually)</div>
+          </div>
+        </div>
+
+        <div class="instructions-box">
+          <h4>How to use in PaperCopy</h4>
+          <ol>
+            <li>Download the exported image using the button below</li>
+            <li>Import the image into PaperCopy on your tablet</li>
+            <li>Set PaperCopy to display the image at <strong id="instr-zoom" style="color:var(--accent)">100%</strong> — no pinch zoom</li>
+            <li>The drawing will now be at exact 1:1 real-world scale on your screen</li>
+            <li>Use the Freeze feature and trace away!</li>
+          </ol>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-export" onclick="exportImage()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 10v2h10v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Download Scaled Image
+          </button>
+          <button class="btn btn-ghost" onclick="previewImage()">
+            Preview
+          </button>
         </div>
       </div>
-
-      <!-- Themes -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap" style="background:rgba(200,241,53,0.1);border-color:rgba(200,241,53,0.3);color:var(--accent)"><i class="fas fa-palette"></i></span>
-          <span class="acc-label">Themes</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Switch between 10 themes. Applies to all UI elements and export posters.</p>
-          <div class="theme-grid" id="theme-grid"></div>
-        </div>
-      </div>
-
-      <!-- Match Evidence -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap"><i class="fas fa-photo-film"></i></span>
-          <span class="acc-label">Match Evidence</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Screenshots submitted with results — organised by match.</p>
-          <div id="evidence-grid" class="evidence-grid-organized"><p style="color:var(--muted);font-size:0.82rem">No evidence images yet.</p></div>
-        </div>
-      </div>
-
-      <!-- Data Management -->
-      <div class="acc-item">
-        <button class="acc-trigger" onclick="toggleAcc(this)">
-          <span class="acc-icon-wrap"><i class="fas fa-database"></i></span>
-          <span class="acc-label">Data Management</span>
-          <i class="fas fa-chevron-down acc-chevron"></i>
-        </button>
-        <div class="acc-body">
-          <p class="acc-desc">Backup or restore league data as JSON.</p>
-          <button class="btn-outline full-w" onclick="exportData()"><i class="fas fa-download"></i> Export JSON Backup</button>
-          <button class="btn-outline full-w" onclick="document.getElementById('importBackup').click()"><i class="fas fa-upload"></i> Restore Backup</button>
-          <input type="file" id="importBackup" accept=".json" style="display:none">
-        </div>
-      </div>
-
-    </div><!-- end admin-accordion -->
-  </section>
+    </div>
+  </div>
 
 </main>
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <button class="nav-btn active" data-tab="dashboard"><i class="fas fa-trophy"></i><span>Standings</span></button>
-  <button class="nav-btn" data-tab="fixtures"><i class="fas fa-futbol"></i><span>Fixtures</span></button>
-  <button class="nav-btn" data-tab="results"><i class="fas fa-check-double"></i><span>Results</span></button>
-  <button class="nav-btn" data-tab="calendar"><i class="fas fa-calendar-alt"></i><span>Calendar</span></button>
-  <button class="nav-btn" data-tab="seasons"><i class="fas fa-layer-group"></i><span>Seasons</span></button>
-  <button class="nav-btn" data-tab="rules"><i class="fas fa-scroll"></i><span>Rules</span></button>
-  <button class="nav-btn" data-tab="admin"><i class="fas fa-shield-halved"></i><span>Admin</span></button>
-</nav>
+<div class="toast" id="toast"></div>
 
-<!-- EXPORT POSTERS (off-screen) -->
-<div id="fixture-capture-area" class="export-poster" style="position:absolute;top:0;left:-9999px;z-index:-1;visibility:hidden">
-  <div class="poster-top-bar"></div>
-  <div class="poster-header">
-    <div class="poster-logo-text">METTLESTATE</div>
-    <div class="poster-title">MATCHDAY FIXTURES</div>
-    <div class="poster-sub" id="poster-fix-season">EA FC MOBILE LEAGUE · SEASON 1</div>
-  </div>
-  <div id="poster-fixture-list" class="poster-match-list"></div>
-  <div class="poster-footer"><span>#MettlestateLeague</span><span>@Astral Reign</span></div>
-  <div class="poster-bottom-bar"></div>
-</div>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-<div id="lb-capture-area" class="export-poster lb-poster" style="position:absolute;top:0;left:-9999px;z-index:-1;visibility:hidden">
-  <div class="poster-top-bar"></div>
-  <div class="poster-header">
-    <div class="poster-logo-text">METTLESTATE</div>
-    <div class="poster-title">LEAGUE STANDINGS</div>
-    <div class="poster-sub" id="poster-lb-season">EA FC MOBILE LEAGUE · SEASON 1</div>
-  </div>
-  <div id="poster-lb-table" class="poster-lb-content"></div>
-  <div class="poster-footer"><span>#MettlestateLeague</span><span>@Astral Reign</span></div>
-  <div class="poster-bottom-bar"></div>
-</div>
+// ── STATE ──
+let pdfDoc = null;
+let currentPage = 1;
+let pageCount = 0;
+let offCanvas = null; // high-res render
+let offCtx = null;
+let tabletPPI = null;
+let calMode = 'points';
+let ptA = null, ptB = null;
+let drawingScaleFactor = null; // mm per canvas pixel
+let outputW = 0, outputH = 0;
+const RENDER_SCALE = 2.5; // render at 2.5x for quality
+let RULER_PX = 200;
 
-<div id="rules-capture-area" class="export-poster" style="position:absolute;top:0;left:-9999px;z-index:-1;visibility:hidden;padding-bottom:20px">
-  <div class="poster-top-bar"></div>
-  <div class="poster-header">
-    <div class="poster-logo-text">METTLESTATE</div>
-    <div class="poster-title">LEAGUE RULES</div>
-    <div class="poster-sub">EA FC MOBILE LEAGUE · SEASON 1</div>
-  </div>
-  <div id="poster-rules-content" style="padding:24px 50px"></div>
-  <div class="poster-footer"><span>#MettlestateLeague</span><span>@Astral Reign</span></div>
-  <div class="poster-bottom-bar"></div>
-</div>
+// ── TOAST ──
+function toast(msg, dur = 2200) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
 
-<!-- MODAL -->
-<div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
-  <div class="modal-box" onclick="event.stopPropagation()">
-    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-    <div id="modal-body"></div>
-  </div>
-</div>
+// ── PDF LOAD ──
+document.getElementById('pdf-input').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const buf = await file.arrayBuffer();
+  pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+  pageCount = pdfDoc.numPages;
+  currentPage = 1;
+  document.getElementById('page-select-area').classList.remove('hidden');
+  await buildThumbs();
+  await loadPage(1);
+  setStep(1);
+});
 
-<!-- LIGHTBOX -->
-<div id="lightbox" class="lightbox" onclick="closeLightbox()">
-  <div class="lightbox-inner">
-    <img id="lightbox-img" src="" alt="">
-    <div id="lightbox-caption"></div>
-  </div>
-</div>
+// drag + drop
+const uz = document.getElementById('upload-zone');
+uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag'); });
+uz.addEventListener('dragleave', () => uz.classList.remove('drag'));
+uz.addEventListener('drop', async e => {
+  e.preventDefault();
+  uz.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (!file || file.type !== 'application/pdf') return toast('Please drop a PDF file');
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  document.getElementById('pdf-input').files = dt.files;
+  document.getElementById('pdf-input').dispatchEvent(new Event('change'));
+});
 
-<!-- TOAST -->
-<div id="toast" class="toast"></div>
+async function buildThumbs() {
+  const strip = document.getElementById('page-strip');
+  strip.innerHTML = '';
+  for (let i = 1; i <= Math.min(pageCount, 30); i++) {
+    const pg = await pdfDoc.getPage(i);
+    const vp = pg.getViewport({ scale: 0.3 });
+    const c = document.createElement('canvas');
+    c.width = vp.width;
+    c.height = vp.height;
+    await pg.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    const wrap = document.createElement('div');
+    wrap.className = 'page-thumb' + (i === 1 ? ' active' : '');
+    wrap.dataset.page = i;
+    wrap.appendChild(c);
+    const lbl = document.createElement('div');
+    lbl.className = 'page-thumb-label';
+    lbl.textContent = `PG ${i}`;
+    wrap.appendChild(lbl);
+    wrap.addEventListener('click', () => loadPage(i));
+    strip.appendChild(wrap);
+  }
+}
 
-<!-- SCRIPTS (ORDER MATTERS) -->
-<script src="js/github.js"></script>
-<script src="js/discord.js"></script>
-<script src="js/calendar.js"></script>
-<script src="js/themes.js"></script>
-<script src="js/automation.js"></script>
-<script src="js/app.js"></script>
+async function loadPage(n) {
+  currentPage = n;
+  document.querySelectorAll('.page-thumb').forEach(t => {
+    t.classList.toggle('active', +t.dataset.page === n);
+  });
+
+  const pg = await pdfDoc.getPage(n);
+  const vp = pg.getViewport({ scale: RENDER_SCALE });
+
+  offCanvas = document.createElement('canvas');
+  offCanvas.width = vp.width;
+  offCanvas.height = vp.height;
+  offCtx = offCanvas.getContext('2d');
+  await pg.render({ canvasContext: offCtx, viewport: vp }).promise;
+
+  // Show on display canvas
+  const rc = document.getElementById('render-canvas');
+  const hc = document.getElementById('hit-canvas');
+  rc.width = vp.width;
+  rc.height = vp.height;
+  rc.getContext('2d').drawImage(offCanvas, 0, 0);
+
+  hc.width = vp.width;
+  hc.height = vp.height;
+  hc.style.width = rc.style.width = '';
+
+  resetPoints();
+  drawingScaleFactor = null;
+  updateStatus();
+  document.getElementById('status-pdf').textContent = `Page ${n} of ${pageCount} loaded`;
+  document.getElementById('dot-pdf').classList.add('ok');
+  document.getElementById('num-1').classList.remove('dim');
+  document.getElementById('pill-1').classList.add('done');
+}
+
+// ── SCREEN SETUP ──
+function selectDevice(btn) {
+  document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  tabletPPI = parseFloat(btn.dataset.ppi);
+  document.getElementById('custom-ppi').value = tabletPPI;
+  updateScreenStatus();
+}
+
+function onCustomPPI() {
+  const v = parseFloat(document.getElementById('custom-ppi').value);
+  if (v > 0) {
+    tabletPPI = v;
+    document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('selected'));
+    updateScreenStatus();
+  }
+}
+
+function updateScreenStatus() {
+  if (!tabletPPI) return;
+  document.getElementById('status-screen').textContent = `${tabletPPI} PPI selected`;
+  document.getElementById('dot-screen').classList.add('ok');
+  document.getElementById('num-2').classList.remove('dim');
+  document.getElementById('num-2').classList.add('done');
+  document.getElementById('pill-2').classList.add('done');
+  tryCompute();
+}
+
+// ── RULER CALIBRATION ──
+function showRulerCalibration() {
+  const el = document.getElementById('ruler-cal');
+  el.classList.toggle('hidden');
+  if (!el.classList.contains('hidden')) {
+    RULER_PX = Math.round(window.screen.width * 0.25);
+    const bar = document.getElementById('ruler-bar');
+    bar.style.width = RULER_PX + 'px';
+    document.getElementById('ruler-px-label').textContent = `Bar is ${RULER_PX}px wide on this screen`;
+  }
+}
+
+function calcRulerPPI() {
+  const mm = parseFloat(document.getElementById('ruler-measured').value);
+  if (!mm || mm <= 0) return;
+  const ppi = Math.round((RULER_PX / mm) * 25.4);
+  document.getElementById('ruler-result-ppi').value = ppi;
+}
+
+function applyRulerPPI() {
+  const ppi = parseFloat(document.getElementById('ruler-result-ppi').value);
+  if (!ppi) return toast('Measure the bar first');
+  document.getElementById('custom-ppi').value = ppi;
+  tabletPPI = ppi;
+  updateScreenStatus();
+  document.getElementById('ruler-cal').classList.add('hidden');
+  toast(`PPI set to ${ppi} from ruler calibration`);
+}
+
+// ── CALIBRATION MODE ──
+function switchCalMode(m) {
+  calMode = m;
+  document.getElementById('tab-points').classList.toggle('active', m === 'points');
+  document.getElementById('tab-scale').classList.toggle('active', m === 'scale');
+  document.getElementById('mode-points').classList.toggle('hidden', m !== 'points');
+  document.getElementById('mode-scale').classList.toggle('hidden', m !== 'scale');
+  drawingScaleFactor = null;
+  updateStatus();
+}
+
+// ── POINT SELECTION ──
+const hc = document.getElementById('hit-canvas');
+
+function getCanvasXY(e) {
+  const rect = hc.getBoundingClientRect();
+  const scaleX = hc.width / rect.width;
+  const scaleY = hc.height / rect.height;
+  const src = e.touches ? e.touches[0] : e;
+  return {
+    x: (src.clientX - rect.left) * scaleX,
+    y: (src.clientY - rect.top) * scaleY
+  };
+}
+
+function handleTap(e) {
+  e.preventDefault();
+  if (!offCanvas) return toast('Load a PDF page first');
+  const pos = getCanvasXY(e);
+  if (!ptA) {
+    ptA = pos;
+    drawPoints();
+    document.getElementById('hint-a').textContent = '✓ Point A set';
+  } else if (!ptB) {
+    ptB = pos;
+    drawPoints();
+    const dx = ptB.x - ptA.x, dy = ptB.y - ptA.y;
+    const dist = Math.round(Math.sqrt(dx*dx + dy*dy));
+    document.getElementById('px-dist').value = dist;
+    document.getElementById('px-dist-row').classList.remove('hidden');
+    document.getElementById('hint-b').textContent = `✓ Point B set · ${dist}px apart`;
+    tryCompute();
+  }
+}
+
+hc.addEventListener('click', handleTap);
+hc.addEventListener('touchend', handleTap);
+
+function drawPoints() {
+  const ctx = hc.getContext('2d');
+  ctx.clearRect(0, 0, hc.width, hc.height);
+
+  function cross(p, color, label) {
+    const r = 10;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(p.x - r, p.y); ctx.lineTo(p.x + r, p.y);
+    ctx.moveTo(p.x, p.y - r); ctx.lineTo(p.x, p.y + r);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.font = 'bold 14px Space Mono, monospace';
+    ctx.fillStyle = color;
+    ctx.fillText(label, p.x + 8, p.y - 8);
+  }
+
+  if (ptA) cross(ptA, '#00e5c8', 'A');
+  if (ptB) {
+    cross(ptB, '#ff6b35', 'B');
+    ctx.beginPath();
+    ctx.moveTo(ptA.x, ptA.y);
+    ctx.lineTo(ptB.x, ptB.y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function resetPoints() {
+  ptA = null; ptB = null;
+  const ctx = hc.getContext('2d');
+  if (hc.width) ctx.clearRect(0, 0, hc.width, hc.height);
+  document.getElementById('hint-a').textContent = 'Tap point A on drawing';
+  document.getElementById('hint-b').textContent = 'Then tap point B';
+  document.getElementById('px-dist-row').classList.add('hidden');
+  document.getElementById('real-dist').value = '';
+  drawingScaleFactor = null;
+  updateStatus();
+}
+
+function tryCompute() {
+  if (!offCanvas || !tabletPPI) return;
+  const px = parseFloat(document.getElementById('px-dist').value);
+  const mm = parseFloat(document.getElementById('real-dist').value);
+  if (!px || !mm) return;
+  // mm per canvas pixel
+  drawingScaleFactor = mm / px;
+  computeOutput();
+}
+
+function tryComputeScale() {
+  if (!offCanvas || !tabletPPI) return;
+  const num = parseFloat(document.getElementById('scale-num').value) || 1;
+  const den = parseFloat(document.getElementById('scale-den').value);
+  if (!den) return;
+  // PDF standard: 1pt = 1/72 inch = 25.4/72 mm
+  const mmPerPt = 25.4 / 72;
+  // At RENDER_SCALE, canvas pixels = pt * RENDER_SCALE
+  const mmPerCanvasPx = (mmPerPt / RENDER_SCALE) * (den / num);
+  drawingScaleFactor = mmPerCanvasPx;
+  computeOutput();
+}
+
+function computeOutput() {
+  if (!drawingScaleFactor || !tabletPPI || !offCanvas) return;
+
+  const pxPerMm = tabletPPI / 25.4;
+  const scaleFactor = drawingScaleFactor * pxPerMm;
+
+  outputW = Math.round(offCanvas.width * scaleFactor);
+  outputH = Math.round(offCanvas.height * scaleFactor);
+
+  const scaleRatio = Math.round(1 / (drawingScaleFactor / 1000) * 1000) / 1000;
+
+  document.getElementById('r-scale').textContent = `1:${(1/drawingScaleFactor).toFixed(1)}`;
+  document.getElementById('r-w').textContent = outputW.toLocaleString();
+  document.getElementById('r-h').textContent = outputH.toLocaleString();
+
+  // Zoom % relative to screen width
+  const screenWpx = window.screen.width * (window.devicePixelRatio || 1);
+  const zoomPct = Math.round((outputW / screenWpx) * 100);
+  document.getElementById('r-zoom').textContent = zoomPct + '%';
+  document.getElementById('instr-zoom').textContent = zoomPct + '%';
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('no-results').classList.add('hidden');
+
+  document.getElementById('status-cal').textContent =
+    `Scale: 1px = ${drawingScaleFactor.toFixed(3)}mm  ·  Output: ${outputW}×${outputH}px`;
+  document.getElementById('dot-cal').classList.add('ok');
+  document.getElementById('num-3').classList.remove('dim');
+  document.getElementById('num-3').classList.add('done');
+  document.getElementById('num-4').classList.remove('dim');
+  document.getElementById('pill-3').classList.add('done');
+  document.getElementById('pill-4').classList.add('active');
+}
+
+function updateStatus() {
+  if (!drawingScaleFactor) {
+    document.getElementById('status-cal').textContent = 'Not calibrated';
+    document.getElementById('dot-cal').classList.remove('ok');
+  }
+}
+
+// ── EXPORT ──
+function getScaledCanvas() {
+  const out = document.createElement('canvas');
+  out.width = outputW;
+  out.height = outputH;
+  out.getContext('2d').drawImage(offCanvas, 0, 0, outputW, outputH);
+  return out;
+}
+
+function exportImage() {
+  if (!outputW) return toast('Complete calibration first');
+  const c = getScaledCanvas();
+  c.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scalemark_page${currentPage}_${outputW}x${outputH}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+  toast('Image exported!');
+}
+
+function previewImage() {
+  if (!outputW) return toast('Complete calibration first');
+  const c = getScaledCanvas();
+  const w = window.open();
+  w.document.write(`<html><body style="margin:0;background:#000"><img src="${c.toDataURL()}" style="max-width:100%;display:block;"></body></html>`);
+}
+
+function setStep(n) {
+  // Just a helper — actual state is driven by data
+}
+
+// ── INIT RULER PX ──
+window.addEventListener('load', () => {
+  RULER_PX = Math.round(window.screen.width * 0.25);
+});
+</script>
 </body>
 </html>
